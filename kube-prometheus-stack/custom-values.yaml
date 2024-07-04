@@ -1,0 +1,189 @@
+## Configuration for alertmanager
+alertmanager:
+  enabled: true
+  alertmanagerSpec:     
+    replicas: 1
+    retention: 120h
+    storage: 
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp2
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+    nodeSelector:
+      kubernetes.io/os: linux
+    resources: 
+      requests:
+        memory: 400Mi          
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: [Alertname]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'gmail-notifications'
+      routes:
+      - match:
+          alertname: DeadMansSwitch
+        receiver: 'null'
+      - match:
+        receiver: 'gmail-notifications'
+        continue: true
+    receivers:
+    - name: 'null'    
+    - name: 'gmail-notifications'
+      email_configs:               
+      - to: rajuninz88@gmail.com
+        from: rajuninz88@gmail.com
+        smarthost: smtp.gmail.com:587
+        auth_username: rajuninz88@gmail.com
+        auth_identity: rajuninz88@gmail.com
+        auth_password: csgxvdsbzkztbooq
+        send_resolved: true
+    templates:
+    - '/etc/alertmanager/config/*.tmpl'
+
+## Grafana Configuration
+##
+grafana:
+  enabled: true
+  defaultDashboardsEnabled: true
+  adminPassword: Br5z935wa*ap4M7@IGo^gz
+  persistence:
+    enabled: true
+    storageClassName: gp2
+    accessModes: ["ReadWriteOnce"]
+    size: 10Gi  
+  nodeSelector:
+    kubernetes.io/os: linux
+  service:
+    enabled: true
+    type: NodePort
+    port: 80    
+  ingress:
+    enabled: false
+  #   ## Annotations for Grafana Ingress
+  #   ##
+    annotations: {}
+    # annotations:
+    #     kubernetes.io/ingress.class: alb    
+    #     alb.ingress.kubernetes.io/group.name: raju-monitoring
+    #     alb.ingress.kubernetes.io/scheme: internet-facing
+    #     alb.ingress.kubernetes.io/target-type: instance
+    #     alb.ingress.kubernetes.io/healthcheck-path: /login
+    #     alb.ingress.kubernetes.io/healthcheck-interval-seconds: '60'
+    #     alb.ingress.kubernetes.io/success-codes: '200'
+    #     #alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:653957476346:certificate/e2485050-d6b5-4c1f-8df0-560cf9002cba
+    # # hosts:
+    # #   - grafana-cldop.com
+
+    labels: {}
+
+    hosts: []
+    # pathType: ImplementationSpecific
+    # path: /*
+    path: /
+    ## TLS configuration for grafana Ingress
+    ## Secret must be manually created in the namespace
+    ##
+    tls: []
+  #   # - secretName: grafana-general-tls
+  #   #   hosts:
+  #   #   - grafana.example.com
+
+## Component scraping the kube api server
+##
+kubeApiServer:
+  enabled: true
+## Component scraping the kubelet and kubelet-hosted cAdvisor
+##
+kubelet:
+  enabled: true
+## Component scraping the kube controller manager
+##
+kubeControllerManager:
+  enabled: false
+## Component scraping coreDns. Use either this or kubeDns
+##
+coreDns:
+  enabled: true
+## Component scraping kubeDns. Use either this or coreDns
+##
+kubeDns:
+  enabled: false
+## Component scraping etcd
+##
+kubeEtcd:
+  enabled: false
+## Component scraping kube scheduler
+##
+kubeScheduler:
+  enabled: false
+## Component scraping kube proxy
+##
+kubeProxy:
+  enabled: false
+## Component scraping kube state metrics
+##
+kubeStateMetrics:
+  enabled: true
+## Deploy node exporter as a daemonset to all nodes
+##
+nodeExporter:
+  enabled: true
+## Manages Prometheus and Alertmanager components
+##
+prometheusOperator:
+  enabled: true
+  ## Resource limits & requests
+  ##
+  resources: 
+    limits:
+      cpu: 200m
+      memory: 250Mi
+    requests:
+      cpu: 150m
+      memory: 200Mi
+  nodeSelector:
+    kubernetes.io/os: linux   
+  admissionWebhooks:
+    patch:
+      nodeSelector:
+        kubernetes.io/os: linux
+prometheus-node-exporter:
+  nodeSelector:
+    kubernetes.io/os: linux      
+kube-state-metrics:
+  nodeSelector:
+    kubernetes.io/os: linux
+## Deploy a Prometheus instance
+##
+prometheus:
+  enabled: true
+  prometheusSpec:  
+    nodeSelector:
+      kubernetes.io/os: linux
+    ## How long to retain metrics
+    ##
+    retention: 20d
+    ## Maximum size of metrics
+    ##
+    retentionSize: ""
+    ## Resource limits & requests
+    ##
+    resources: 
+      requests:
+        memory: 400Mi
+    ## Prometheus StorageSpec for persistent data
+    storageSpec: 
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp2
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
