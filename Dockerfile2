@@ -1,0 +1,39 @@
+# Stage 1: Build Stage
+FROM node:18.15-alpine AS builder
+
+USER root
+
+# Set the working directory
+WORKDIR /src
+
+# Copy only package.json and package-lock.json first
+COPY package*.json ./
+
+# Install dependencies (this step will be cached as long as package.json doesn't change)
+RUN npm install --frozen-lockfile
+
+# Copy the rest of the application code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Stage 2: Production Stage
+FROM node:18.15-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the built files from the build stage
+COPY --from=builder /src /app
+
+# Install serve as it's a production dependency
+RUN npm install --global serve@14.2.0
+
+# Expose the application port
+EXPOSE 4004
+
+USER 1000
+
+# Run the deployment command
+ENTRYPOINT ["npm", "run", "deploy"]
