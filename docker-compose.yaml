@@ -298,7 +298,7 @@ services:
       - GIT_SYNC_WAIT=60
       - GIT_SYNC_TIMEOUT=120
       - GIT_SYNC_ADD_USER=true
-      - GIT_SYNC_PASSWORD=K5JX/nTlu6N0OeeyzhF5aIHyfX8/pbrAmXDf0f9ininjWysIWc1OZS2+9rc=
+      - GIT_SYNC_PASSWORD=**********************************
       - GIT_SYNC_ROOT=/dags
       - GIT_SYNC_BRANCH=master
     user: "${AIRFLOW_UID:-50000}:0"   
