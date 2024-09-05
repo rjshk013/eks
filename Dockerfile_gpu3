@@ -1,0 +1,17 @@
+FROM nvcr.io/nvidia/cuda:11.0-runtime-ubuntu20.04  # CUDA with Python runtime
+
+# Install Python and pip
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.9 python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY . /app
+WORKDIR /app
+
+# Run the gRPC server
+CMD ["python3", "server.py"]
