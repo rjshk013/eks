@@ -1,0 +1,28 @@
+# Base image with Python
+FROM python:3.9-slim
+
+# Install CUDA dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gnupg2 curl ca-certificates && \
+    curl -sL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin | tee /etc/apt/preferences.d/cuda-repository-pin-600 && \
+    curl -sL https://developer.download.nvidia.com/compute/cuda/11.0.3/local_installers/cuda-repo-ubuntu2004-11-0-local_11.0.3-450.51.06-1_amd64.deb -o cuda-repo-ubuntu2004.deb && \
+    dpkg -i cuda-repo-ubuntu2004.deb && \
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    cuda-toolkit-11-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables for CUDA
+ENV PATH=/usr/local/cuda/bin:$PATH
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY . /app
+WORKDIR /app
+
+# Run the gRPC server
+CMD ["python3", "server.py"]
