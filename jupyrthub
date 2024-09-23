@@ -1,0 +1,12 @@
+c = get_config()
+
+# Use DummyAuthenticator (for testing)
+c.JupyterHub.authenticator_class = 'dummyauthenticator.DummyAuthenticator'
+
+# Set a common password for all users, including the admin
+c.DummyAuthenticator.password = "adminpassword"  # Replace with your password
+
+# Specify the admin user(s)
+c.Authenticator.admin_users = {'adminuser'}  # Replace with your desired admin username
+
+# Allow any username to login with the common password (for testing purposes)
