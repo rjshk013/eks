@@ -1,0 +1,27 @@
+# Stage 1: Build Stage
+FROM node:18.15 AS builder
+
+WORKDIR /src
+
+# Copy only necessary files for caching
+COPY package*.json ./
+RUN npm install serve@14.2.0 && npm install
+
+# Copy remaining files and build the app
+COPY . .
+RUN npm run build
+
+# Stage 2: Production Stage
+FROM node:18.15-alpine
+
+WORKDIR /app
+
+# Copy only the build output
+COPY --from=builder /src/build /app/build
+
+EXPOSE 4004
+
+USER 1000
+
+# Run the deployment command
+ENTRYPOINT ["npm", "run", "deploy"]
