@@ -1,0 +1,24 @@
+# Stage 1: Build
+FROM python:3.10 AS builder
+
+WORKDIR /src
+
+COPY ./requirements.txt /src
+
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+
+# Stage 2: Production
+FROM python:3.10-slim
+
+WORKDIR /src
+
+# Copy installed dependencies from the builder stage
+COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY . .
+
+EXPOSE 8000
+
+ENTRYPOINT ["uvicorn", "app.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
