@@ -1,0 +1,31 @@
+# Use the official Airflow image as a base
+FROM apache/airflow:2.7.3-python3.10
+
+# Switch to root for installation
+USER root
+
+# Update and install required packages in a single RUN command to minimize layers
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends default-jdk && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set JAVA_HOME environment variable for Java installations
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# Switch back to airflow user for running Airflow
+USER airflow
+
+# Copy requirements.txt early to leverage Docker caching
+COPY requirements.txt /requirements.txt
+
+# Upgrade pip and install Python dependencies in one command
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir lxml && \
+    pip install --no-cache-dir -r /requirements.txt
+
+# Clean up unnecessary files to reduce image size (if any)
+RUN rm -f /requirements.txt
+
+# Keep the user as 'airflow' to avoid running as root during runtime
+USER airflow
