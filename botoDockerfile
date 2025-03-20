@@ -1,0 +1,17 @@
+# Start with the official Python 3.10 slim image
+FROM python:3.10-slim
+
+# Set a working directory in the container
+WORKDIR /app
+
+# Copy the Python script into the Docker image
+COPY list_bucket_contents.py /app/
+
+# Install Boto3 for AWS API access
+RUN pip install boto3
+
+# Expose the necessary port (if your script uses a specific port, list it here)
+# EXPOSE 8080  # Example for exposing port 8080, remove if not needed
+
+# Command to run the script on container startup
+CMD ["python", "list_bucket_contents.py"]
