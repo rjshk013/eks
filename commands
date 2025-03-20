@@ -1,0 +1,5 @@
+docker run -v ~/.aws:/root/.aws -e AWS_PROFILE=dev -e BUCKET_NAME=your_bucket_name s3-list-contents
+docker build -t s3-list-contents .
+
+docker run -v ~/.aws:/root/.aws -e AWS_PROFILE=dev -e BUCKET_NAME=your_bucket_name s3-list-contents
+  
