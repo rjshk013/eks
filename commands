@@ -3,3 +3,4 @@ docker build -t s3-list-contents .
 
 docker run -v ~/.aws:/root/.aws -e AWS_PROFILE=dev -e BUCKET_NAME=your_bucket_name s3-list-contents
   
+docker run --rm s3-list-contents python -c "import boto3; print(f'boto3 version: {boto3.__version__}')"
