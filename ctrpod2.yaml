@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: containerd-ctr-pod
+spec:
+  containers:
+  - name: ctr-container
+    image: yourusername/containerd-ctr:latest
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /run/containerd/containerd.sock
+      name: containerd-socket
+    - mountPath: /host
+      name: host-volume
+  volumes:
+  - name: containerd-socket
+    hostPath:
+      path: /run/containerd/containerd.sock
+      type: Socket
+  - name: host-volume
+    hostPath:
+      path: /
+      type: Directory
