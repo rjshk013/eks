@@ -1,0 +1,24 @@
+kubectl taint nodes <node-name> do-not-evict=true:NoExecute
+
+# 2. Keep the scale-down-disabled label
+kubectl label nodes <node-name> cluster-autoscaler.kubernetes.io/scale-down-disabled=true --overwrite
+
+# 3. Deploy a critical pod that cannot be evicted
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: node-keeper-<node-name>
+  namespace: kube-system
+spec:
+  containers:
+  - name: pause
+    image: registry.k8s.io/pause:3.2
+  priorityClassName: system-cluster-critical
+  nodeSelector:
+    kubernetes.io/hostname: <node-name>
+  tolerations:
+  - key: "do-not-evict"
+    operator: "Exists"
+    effect: "NoExecute"
+EOF
