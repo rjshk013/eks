@@ -22,3 +22,12 @@ spec:
     operator: "Exists"
     effect: "NoExecute"
 EOF
+
+
+  nodeSelector:
+    kubernetes.io/hostname: <your-node-name>
+  tolerations:
+    - key: "do-not-evict"
+      operator: "Equal"
+      value: "true"
+      effect: "NoExecute"
